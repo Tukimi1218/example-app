@@ -36,7 +36,12 @@
                 <input type="date" id="date" name="date">
 
                 <label for="category">カテゴリ:</label>
-                <select name="category" id="category"></select>
+                <select name="category" id="category">
+                    <option value="">カテゴリを選択</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
 
                 <label for="price">金額:</label>
                 <input type="text" id="price" name="price">
