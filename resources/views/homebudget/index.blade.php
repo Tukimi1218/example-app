@@ -48,9 +48,30 @@
                 </thead>
                 <tbody>
                     <!-- 支出データのループ処理 -->
-
+                    @foreach ($home_budgets as $home_budget)
+                    <tr>
+                        <td>{{ $home_budget->date }}</td>
+                        <td>{{ $home_budget->category->name }}</td>
+                        <td>{{ $home_budget->price }}</td>
+                        <td class="button-td">
+                            <form action="" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="submit" value="更新" class="edit-button">
+                            </form>
+                            <form action="" method="POST" id="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <input type="submit" value="削除" class="delete-button" id="delete-button">
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
                 </tbody>
             </table>
+            <div>
+                {{ $home_budgets->links() }}
+            </div>
         </div>
 
         <div class="add-balance">
@@ -78,5 +99,6 @@
             </form>
         </div>
     </section>
+    <script src="{{ asset('js/main.js') }}"></script>
 </body>
 </html>

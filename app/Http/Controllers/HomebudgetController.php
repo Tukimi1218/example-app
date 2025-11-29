@@ -14,8 +14,9 @@ class HomebudgetController extends Controller
     public function index()
     {
         $categories = Category::all();
+        $home_budgets = HomeBudget::with('category')->orderBy('date', 'desc')->paginate(5);
         
-        return view('homebudget.index', compact('categories'));
+        return view('homebudget.index', compact('categories', 'home_budgets'));
     }
 
     /**
