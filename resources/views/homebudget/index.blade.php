@@ -38,12 +38,13 @@
                 </div>
             @endif
 
-            <table>
+            <table class="mb-5">
                 <thead>
                     <tr>
                         <th>日付</th>
                         <th>カテゴリ</th>
                         <th>金額</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,13 +54,11 @@
                         <td>{{ $home_budget->date }}</td>
                         <td>{{ $home_budget->category->name }}</td>
                         <td>{{ $home_budget->price }}</td>
-                        <td class="button-td">
-                            <form action="" method="POST">
-                                @csrf
-                                @method('PUT')
+                        <td class="balance1-td">
+                            <form action="{{ route('homebudget.edit', [$home_budget->id]) }}" method="GET">
                                 <input type="submit" value="更新" class="edit-button">
                             </form>
-                            <form action="" method="POST" id="delete-form">
+                            <form action="{{ route('homebudget.delete', [$home_budget->id]) }}" method="POST" id="delete-form">
                                 @csrf
                                 @method('DELETE')
                                 <input type="submit" value="削除" class="delete-button" id="delete-button">
@@ -69,8 +68,14 @@
                     @endforeach
                 </tbody>
             </table>
-            <div>
-                {{ $home_budgets->links() }}
+            <div class="flex justify-between items-center mt-5 mb-3">
+                <div class="">
+                    {{ $home_budgets->links() }}
+                </div>
+                <div class="flex flex-col">
+                    <p class="mb-2">収支合計:{{ $income }}円</p>
+                    <p class="mb-2">支出合計:{{ $payment }}円</p>
+                </div>
             </div>
         </div>
 
