@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Category;
 use App\Models\HomeBudget;
 
 class HomebudgetController extends Controller
@@ -13,10 +12,11 @@ class HomebudgetController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
         $home_budgets = HomeBudget::with('category')->orderBy('date', 'desc')->paginate(5);
-        
-        return view('homebudget.index', compact('categories', 'home_budgets'));
+        $income = $home_budgets->where('category_id', 6)->sum('price');
+        $payment = $home_budgets->where('category_id', '!=', 6)->sum('price');
+
+        return view('homebudget.index', compact('home_budgets', 'income', 'payment'));
     }
 
     /**
@@ -66,15 +66,36 @@ class HomebudgetController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $home_budget = HomeBudget::find($id);
+
+        return view('homebudget.edit', compact('home_budget'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'date' => 'required|date',
+            'category' => 'required|exists:categories,id',
+            'price' => 'required|numeric'
+        ]);
+
+        $result = HomeBudget::where('id', $id);
+        if ($result->exists()) {
+            $result->update([
+                'date' => $request->date,
+                'category_id' => $request->category,
+                'price' => $request->price,
+            ]);
+
+            session()->flash('flash_message', '支出を更新しました。');
+        } else {
+            session()->flash('flash_error_message', '支出を更新できませんでした。');
+        }
+
+        return redirect('/index');        
     }
 
     /**
@@ -82,6 +103,10 @@ class HomebudgetController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $home_budget = HomeBudget::find($id);
+        $home_budget->delete();
+        session()->flash('flash_message', '支出を削除しました。');
+        
+        return redirect('/index');
     }
 }
