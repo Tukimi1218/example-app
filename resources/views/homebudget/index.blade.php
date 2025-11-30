@@ -11,39 +11,99 @@
         <h1 class="text-3xl font-bold">家計簿アプリ</h1>
     </header>
 
+    <!-- エラーメッセージ -->
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li class="text-red-500 text-xs italic">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <section class="container1">
         <div class="balance1">
             <h3 class="mb-3">支出一覧</h3>
-            <table>
+
+            <!-- フラッシュメッセージ -->
+            @if (session('flash_message'))
+                <div class="alert alert-succes text-green-500 italic">
+                    {{ session('flash_message') }}
+                </div>
+            @endif
+            @if (session('flash_error_message'))
+                <div class="alert alert-danger text-red-500 italic">
+                    {{ session('flash_error_message') }}
+                </div>
+            @endif
+
+            <table class="mb-5">
                 <thead>
                     <tr>
                         <th>日付</th>
                         <th>カテゴリ</th>
                         <th>金額</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- 支出データのループ処理 -->
-
+                    @foreach ($home_budgets as $home_budget)
+                    <tr>
+                        <td>{{ $home_budget->date }}</td>
+                        <td>{{ $home_budget->category->name }}</td>
+                        <td>{{ $home_budget->price }}</td>
+                        <td class="balance1-td">
+                            <form action="{{ route('homebudget.edit', [$home_budget->id]) }}" method="GET">
+                                <input type="submit" value="更新" class="edit-button">
+                            </form>
+                            <form action="{{ route('homebudget.delete', [$home_budget->id]) }}" method="POST" id="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <input type="submit" value="削除" class="delete-button" id="delete-button">
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
                 </tbody>
             </table>
+            <div class="flex justify-between items-center mt-5 mb-3">
+                <div class="">
+                    {{ $home_budgets->links() }}
+                </div>
+                <div class="flex flex-col">
+                    <p class="mb-2">収支合計:{{ $income }}円</p>
+                    <p class="mb-2">支出合計:{{ $payment }}円</p>
+                </div>
+            </div>
         </div>
 
         <div class="add-balance">
             <h3 class="mb-4">支出の追加</h3>
-            <form action="/balances" method="POST">
+            <form action="{{ route('homebudget.store') }}" method="POST">
+                @csrf
                 <label for="date">日付:</label>
                 <input type="date" id="date" name="date">
+                @if ($errors->has('date')) <span class="pb-3 text-red-500 text-s italic">{{ $errors->first('date') }}</span> @endif
 
                 <label for="category">カテゴリ:</label>
-                <select name="category" id="category"></select>
+                <select name="category" id="category">
+                    <option value="">カテゴリを選択</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                @if ($errors->has('category')) <span class="pb-3 text-red-500 text-s italic">{{ $errors->first('category') }}</span> @endif
 
                 <label for="price">金額:</label>
                 <input type="text" id="price" name="price">
+                @if ($errors->has('price')) <span class="pb-3 text-red-500 text-s italic">{{ $errors->first('price') }}</span> @endif
 
                 <button type="submit">追加</button>
             </form>
         </div>
     </section>
+    <script src="{{ asset('js/main.js') }}"></script>
 </body>
 </html>
